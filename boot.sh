@@ -2,8 +2,7 @@
 
 if [ ! -d bootloader ]; then
 
-git submodule update --init --recursive &&
-mv raspbootin bootloader
+git submodule update --init --recursive
 
 fi
 
