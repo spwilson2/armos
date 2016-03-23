@@ -1,6 +1,9 @@
 #HOST?=$(shell ../default-host.sh)
 #HOSTARCH:=$(shell ../target-triplet-to-arch.sh $(HOST))
  
+# If we are running make from this directory.
+DIR ?= $(CURDIR)
+
 HOSTARCH ?= armv7-a
 
 #Optional flags
