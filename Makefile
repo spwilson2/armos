@@ -28,11 +28,10 @@ HOSTARCH ?= $(BUILD_ARCH)
 
 HOSTARCH := armv7-a
 
+# A hack to use relative paths within the kernel Makefile
 OLD_CURDIR := $(CURDIR)
 CURDIR := $(CURDIR)/kernel
-
 include kernel/Makefile
-
 CURDIR := $(OLD_CURDIR)
 
 .PHONY: all boot
@@ -41,8 +40,7 @@ all: kernel
 
 kernel: kernel.img
 
-
-boot:
+boot: kernel
 	bash boot.sh
 
 
