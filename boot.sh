@@ -1,6 +1,6 @@
 #/bin/bash
 
-if [ ! -d bootloader ]; then
+if [ ! -d raspbootin ]; then
 
 git submodule update --init --recursive
 
@@ -8,10 +8,12 @@ fi
 
 if $!; then
 
-cd bootloader &&
+cd raspbootin &&
 make &&
 cd .. &&
-bootloader/raspbootcom/raspbootcom /dev/ttyUSB0 kernel/kernel.img
+
+# Use tmux otherwise the terminal is gonna get fuuuuked
+tmux new 'raspbootin/raspbootcom/raspbootcom /dev/ttyUSB0 kernel.img'
 
 fi
 
