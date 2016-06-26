@@ -27,6 +27,7 @@ all: kernel.img
 
 # Recursively build items. Set the CURDIR to trick the included file.
 CURDIR:=$(CURDIR)/kernel
+export CURDIR
 include $(CURDIR)/makefile.mk
 CURDIR:=$(BASEDIR)
 
