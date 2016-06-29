@@ -1,0 +1,10 @@
+
+autoincludes = ['-include' + file.path for file in Glob('autoinclude/*.h')]
+
+#autoincludes = ['']
+Export('autoincludes')
+archdir='arch/armv7-a'
+
+env = Environment(CC='arm-none-eabi-gcc', LINKFLAGS=(['-T' + str(Dir('.').abspath) + '/' + archdir + "/linker.ld", '-nostdlib']))
+objs = SConscript(archdir+'/SConscript')
+env.Program('kernel.elf', objs)

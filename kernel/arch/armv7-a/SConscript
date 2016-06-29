@@ -1,0 +1,14 @@
+
+Import('autoincludes')
+
+sources = [Glob('*.c')]
+
+env = Environment(CPPPATH=['./include'],
+                  CCFLAGS=(autoincludes + ['-std=gnu99']),
+                  CC='arm-none-eabi-gcc -nostdlib -ffreestanding\
+                  -mfpu=neon-vfpv4 -mfloat-abi=hard -march=armv7-a\
+                  -mtune=cortex-a7 -nostartfiles'
+)
+
+objs = env.Object(sources)
+Return('objs')
