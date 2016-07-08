@@ -40,7 +40,7 @@ clean:
 kernel.bin: $(OBJS)
 	$(CROSS_LD) $(OBJS) $(LDFLAGS) -T $(SRCDIR)$(LINKSCRIPT) -o $@
 
-$(OBJDIR)rust-kernel.o: src/main.rs
+$(OBJDIR)rust-kernel.o: src/main.rs Makefile
 	@mkdir -p $(dir $@)
 	$(RUSTC) $< $(RUSTFLAGS) --emit=obj,dep-info -o $@
 
@@ -52,4 +52,4 @@ $(OBJDIR)%.o:src/arch/$(ARCH)/%.S
 	@mkdir -p $(dir $@)
 	@$(CROSS_AS) $< -c $(ARCH_ASFLAGS) -o $@ 
 
--include $(OBJDIR)kernel.d
+-include $(shell find $(OBJDIR) -name *.d )
