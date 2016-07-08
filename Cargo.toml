@@ -1,0 +1,13 @@
+[package]
+name = "rustos"
+version = "0.1.0"
+authors = ["Sean Wilson <spwilson27@gmail.com>"]
+
+[lib]
+crate-type = ["staticlib"]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
