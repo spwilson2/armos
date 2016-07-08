@@ -5,9 +5,14 @@
 #[path="arch/armv7a/mmio.rs"]
 pub mod mmio;
 
+#[path="arch/armv7a/uart.rs"]
+pub mod uart;
+
 #[no_mangle]
 pub extern fn rust_main() {
-    unsafe {mmio::mmio_write(&mut 0x00000000usize, 0x00000001usize);}
+    //unsafe {mmio::mmio_write(&mut 0x00000000usize, 0x00000001usize);}
+    uart::init();
+    uart::puts("Hello World!");
 }
 
 #[no_mangle]
