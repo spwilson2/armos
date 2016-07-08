@@ -5,39 +5,39 @@ mod mmio;
 //use self::std::os::raw::c_char as c_char;
 
 // The offsets for reach register.
-const GPIO_BASE: u32 = 0x3F200000;
+const GPIO_BASE: usize = 0x3F200000;
 
 // Controls actuation of pull up/down to ALL GPIO pins.
-const GPPUD: u32 = (GPIO_BASE + 0x94);
+const GPPUD: usize = (GPIO_BASE + 0x94);
 
 // Controls actuation of pull up/down for specific GPIO pin.
-const GPPUDCLK0: u32 = (GPIO_BASE + 0x98);
+const GPPUDCLK0: usize = (GPIO_BASE + 0x98);
 /*TODO: Move this gpio defs somewhere else.*/
  
 // The base address for UART.
-const UART0_BASE_OFFSET: u32 = 0x00001000;
+const UART0_BASE_OFFSET: usize = 0x00001000;
  
 // The offsets for reach register for the UART.
-const DR     :u32 = 0x00 + GPIO_BASE;
-const RSRECR :u32 = 0x04 + GPIO_BASE;
-const FR     :u32 = 0x18 + GPIO_BASE;
-const ILPR   :u32 = 0x20 + GPIO_BASE;
-const IBRD   :u32 = 0x24 + GPIO_BASE;
-const FBRD   :u32 = 0x28 + GPIO_BASE;
-const LCRH   :u32 = 0x2C + GPIO_BASE;
-const CR     :u32 = 0x30 + GPIO_BASE;
-const IFLS   :u32 = 0x34 + GPIO_BASE;
-const IMSC   :u32 = 0x38 + GPIO_BASE;
-const RIS    :u32 = 0x3C + GPIO_BASE;
-const MIS    :u32 = 0x40 + GPIO_BASE;
-const ICR    :u32 = 0x44 + GPIO_BASE;
-const DMACR  :u32 = 0x48 + GPIO_BASE;
-const ITCR   :u32 = 0x80 + GPIO_BASE;
-const ITIP   :u32 = 0x84 + GPIO_BASE;
-const ITOP   :u32 = 0x88 + GPIO_BASE;
-const TDR    :u32 = 0x8C + GPIO_BASE;
+const DR     :usize = 0x00 + GPIO_BASE;
+const RSRECR :usize = 0x04 + GPIO_BASE;
+const FR     :usize = 0x18 + GPIO_BASE;
+const ILPR   :usize = 0x20 + GPIO_BASE;
+const IBRD   :usize = 0x24 + GPIO_BASE;
+const FBRD   :usize = 0x28 + GPIO_BASE;
+const LCRH   :usize = 0x2C + GPIO_BASE;
+const CR     :usize = 0x30 + GPIO_BASE;
+const IFLS   :usize = 0x34 + GPIO_BASE;
+const IMSC   :usize = 0x38 + GPIO_BASE;
+const RIS    :usize = 0x3C + GPIO_BASE;
+const MIS    :usize = 0x40 + GPIO_BASE;
+const ICR    :usize = 0x44 + GPIO_BASE;
+const DMACR  :usize = 0x48 + GPIO_BASE;
+const ITCR   :usize = 0x80 + GPIO_BASE;
+const ITIP   :usize = 0x84 + GPIO_BASE;
+const ITOP   :usize = 0x88 + GPIO_BASE;
+const TDR    :usize = 0x8C + GPIO_BASE;
 
-const DELAY: u32 = 150;
+const DELAY: usize = 150;
 
 
 // TODO: Define a trait for the UART driver.
@@ -90,8 +90,8 @@ pub fn putc(byte: char)
 {
     unsafe {
     // Wait for UART to become ready to transmit.
-    while ( mmio::read(&mut FR) & (1u32 << 5u32) ) > 0 { }
-    mmio::write(&mut DR, byte as u32);
+    while ( mmio::read(&mut FR) & (1usize << 5usize) ) > 0 { }
+    mmio::write(&mut DR, byte as usize);
     }
 }
 

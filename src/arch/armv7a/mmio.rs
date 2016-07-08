@@ -1,12 +1,12 @@
-pub unsafe fn write(address: *mut u32, value: u32) {
+pub unsafe fn write(address: *mut usize, value: usize) {
     *address = value;
 }
 
-pub unsafe fn read(address: *mut u32) -> u32 {
+pub unsafe fn read(address: *mut usize) -> usize {
     *address
 }
 
-pub unsafe fn delay(time: u32) {
+pub unsafe fn delay(time: usize) {
     for i in 0..time {
         ;
     }
