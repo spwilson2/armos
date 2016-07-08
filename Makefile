@@ -19,7 +19,7 @@ LINKER_SCRIPT := src/arch/$(ARCH)/linker.ld
 
 kernel:=target/kernel-$(ARCH).bin
 
-.PHONY: all
+.PHONY: all cargo
 
 all: $(kernel)
 
@@ -30,7 +30,9 @@ clean:
 $(kernel): $(ASSEMBLY_OBJS) $(LINKER_SCRIPT) $(RUST_OS)
 	$(ARCH_LD) --gc-sections $(ASSEMBLY_OBJS) $(RUST_OS) $(ARCH_LDFLAGS) -T $(LINKER_SCRIPT) -o $@
 
-$(RUST_OS):
+$(RUST_OS): cargo
+
+cargo:
 	@cargo build --target=$(TARGET_TRIPLET)
 
 #%.o:%.S
