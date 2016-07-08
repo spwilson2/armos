@@ -4,8 +4,7 @@
 #![feature(asm)]
 #![no_std]
 
-use arch::mmio;
-use arch::uart;
+use arch::drivers::uart;
 
 mod arch;
 

@@ -1,5 +1,19 @@
-#[path="mmio.rs"]
-mod mmio;
+
+use arch::mmio;
+
+//TODO: Need to implement Box/kmalloc.
+//trait Uart {
+//    fn putc(&self, &char);
+//    fn puts(&self, &str);
+//    fn write(&self,&[char]);
+//    fn getc(&self) -> char;
+//}
+//
+//pub struct Uart {
+//    pub mmio_base: usize;
+//}
+
+
 
 //extern crate std;
 //use self::std::os::raw::c_char as c_char;

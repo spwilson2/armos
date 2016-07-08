@@ -5,4 +5,3 @@ pub use self::arch::*;
 #[cfg(target_arch = "arm")]
 #[path="armv7a/mod.rs"]
 pub mod arch;
-
