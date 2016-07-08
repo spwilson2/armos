@@ -1,44 +1,55 @@
-DEBUG:=debug
+ARCH ?= armv7a
 
-ARCH ?=armv7a
-TARGET_TRIPLET:=arm-unknown-linux-gnueabi
-RUST_OS:=target/$(TARGET_TRIPLET)/$(DEBUG)/librustos.a
 
-ARCH_TOOL_PFX:=arm-none-eabi-
+ifeq ($(ARCH),armv7a)
+    TRIPLE ?= arm-none-eabi-
+	RUST_TARGET ?=arm-unknown-linux-gnueabi
+else
+    $(error Unknown architecture $(ARCH))
+endif
 
-ARCH_LD:=$(ARCH_TOOL_PFX)ld
-ARCH_AS:=$(ARCH_TOOL_PFX)gcc
-ARCH_CCFLAGS:= -mfpu=neon-vfpv4 -mfloat-abi=hard -march=armv7-a -mtune=cortex-a7 -fpic -ffreestanding -nostartfiles -fno-exceptions
-ARCH_LDFLAGS:=
+RUSTC ?= rustc
 
-ASSEMBLY_SOURCE_FILES := $(wildcard src/arch/$(ARCH)/*.S)
-ASSEMBLY_OBJS:= $(patsubst src/arch/$(ARCH)/%.S, \
-		build/arch/$(ARCH)/%.o, $(ASSEMBLY_SOURCE_FILES))
+CROSS_LD := $(TRIPLE)ld
+CROSS_AS := $(TRIPLE)as
+CROSS_OBJDUMP := $(TRIPLE)objdump
+CROSS_OBJCOPY := $(TRIPLE)objcopy
 
-LINKER_SCRIPT := src/arch/$(ARCH)/linker.ld
+OBJDIR := .obj/$(ARCH)/
 
-kernel:=target/kernel-$(ARCH).bin
+LINKSCRIPT := arch/$(ARCH)/linker.ld
+TARGETSPEC := arch/$(ARCH)/target.json
 
-.PHONY: all cargo
+LDFLAGS := --gc-sections
 
-all: $(kernel)
+RUSTFLAGS := -O --target=$(RUST_TARGET) --crate-type=lib 
+ARCH_ASFLAGS:= -mfpu=neon-vfpv4 -mfloat-abi=hard -march=armv7-a
+
+OBJS := boot.o rust-kernel.o
+OBJS := $(OBJS:%=$(OBJDIR)%)
+BIN := ../kernel.$(ARCH).bin
+SRCDIR := src/
+
+.PHONY: clean all
+
+all: kernel.bin
 
 clean:
-	@cargo clean
-	@rm -rf build
+	rm -rf .obj kernel.bin
 
-$(kernel): $(ASSEMBLY_OBJS) $(LINKER_SCRIPT) $(RUST_OS)
-	$(ARCH_LD) --gc-sections $(ASSEMBLY_OBJS) $(RUST_OS) $(ARCH_LDFLAGS) -T $(LINKER_SCRIPT) -o $@
+kernel.bin: $(OBJS)
+	$(CROSS_LD) $(OBJS) $(LDFLAGS) -T $(SRCDIR)$(LINKSCRIPT) -o $@
 
-$(RUST_OS): cargo
+$(OBJDIR)rust-kernel.o: src/main.rs
+	@mkdir -p $(dir $@)
+	$(RUSTC) $< $(RUSTFLAGS) --emit=obj,dep-info -o $@
 
-cargo:
-	@cargo build --target=$(TARGET_TRIPLET)
+$(OBJDIR)%.o:%.rs
+	@mkdir -p $(dir $@)
+	$(RUSTC) $< $(RUSTFLAGS) --out-dir=$(OBJDIR) --emit=obj,dep-info -o $@
 
-#%.o:%.S
-#	$(ARCH_AS) $< $(ARCH_CCFLAGS) -o $@
+$(OBJDIR)%.o:src/arch/$(ARCH)/%.S
+	@mkdir -p $(dir $@)
+	@$(CROSS_AS) $< -c $(ARCH_ASFLAGS) -o $@ 
 
-# compile assembly files
-build/arch/$(ARCH)/%.o: src/arch/$(ARCH)/%.S
-	@mkdir -p $(shell dirname $@)
-	@$(ARCH_AS) $< -c $(ARCH_CCFLAGS) -o $@ 
+-include $(OBJDIR)kernel.d
