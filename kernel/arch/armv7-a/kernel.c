@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <uart.h>
  
+	extern print_registers_to_serial();
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
 #endif
@@ -20,4 +21,5 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags)
  
 	while ( true )
 		gUart->putc(gUart, gUart->getc(gUart));
+	print_registers_to_serial();
 }
