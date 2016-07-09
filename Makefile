@@ -22,16 +22,21 @@ TARGETSPEC := arch/$(ARCH)/target.json
 
 LDFLAGS := --gc-sections
 
-RUSTFLAGS := --target=$(RUST_TARGET) -C lto \
-	-C no-prepopulate-passes -C no-stack-check -O \
-	-Z no-landing-pads \
-	-A dead_code
+RUSTFLAGS := --target=$(RUST_TARGET) -C lto -C panic=abort
+
+	#-C lto \
+	#-C no-prepopulate-passes -C no-stack-check -C opt-level=3 \
+	#-Z no-landing-pads \
+	#-A dead_code
+#RUSTFLAGS := --target=$(RUST_TARGET) -C lto -O
+#RUSTFLAGS := --target=$(RUST_TARGET) -O
 ARCH_ASFLAGS:= -mfpu=neon-vfpv4 -mfloat-abi=hard -march=armv7-a
 
-OBJS := boot.o kernel.o
+OBJS := boot.o
 OBJS := $(OBJS:%=$(OBJDIR)%)
 BIN := ../kernel.$(ARCH).bin
 SRCDIR := src/
+RUSTSRC := $(shell find $(SRCDIR) -name *.rs)
 
 CLEAN := $(OBJS) kernel.img kernel.elf
 
@@ -46,13 +51,15 @@ run: kernel.img boot.sh
 clean:
 	rm -rf .obj $(CLEAN)
 
-kernel.img: $(OBJS)
-	$(CROSS_LD) $(OBJS) $(LDFLAGS) -T $(SRCDIR)$(LINKSCRIPT) -o kernel.elf
+kernel.img: $(OBJS) $(OBJDIR)kernel.rlib
+	$(CROSS_LD) $^ $(LDFLAGS) -T $(SRCDIR)$(LINKSCRIPT) -o kernel.elf
 	$(CROSS_OBJCOPY) kernel.elf -O binary $@
 
-$(OBJDIR)kernel.o: src/main.rs Makefile
+#$(OBJDIR)kernel.rlib: src/main.rs $(RUSTSRC)
+$(OBJDIR)kernel.rlib: src/main.rs $(RUSTSRC)
+	echo $(RUSTSRC)
 	@mkdir -p $(dir $@)
-	$(RUSTC) $< $(RUSTFLAGS) --emit=obj,dep-info --out-dir $(OBJDIR)
+	$(RUSTC) $(RUSTFLAGS) -o $@ $<
 
 #$(OBJDIR)%.o:%.rs
 #	@mkdir -p $(dir $@)
