@@ -18,9 +18,9 @@ mod arch;
 #[inline(never)]
 pub extern "C" fn rust_main() -> !{
     //unsafe {mmio::mmio_write(&mut 0x00000000usize, 0x00000001usize);}
-    //uart::init();
-    //uart::puts(b"Hello World!" as &str);
-    uart::putc(&b'h');
+    uart::init();
+    uart::puts("Hello World!" as &str);
+    //uart::putc(&'h');
     //led::blink();
     
     loop {}
