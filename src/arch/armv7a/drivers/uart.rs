@@ -1,5 +1,5 @@
-
-use arch::mmio;
+use arch::io::mmio;
+use arch::io::gpio;
 
 //TODO: Need to implement Box/kmalloc.
 //trait Uart {
@@ -17,38 +17,29 @@ use arch::mmio;
 //use self::std::os::raw::c_char as c_char;
 
 // The offsets for reach register.
-const GPIO_BASE: usize = 0x3F200000;
-const GPIO_BASE_PTR: *mut usize = GPIO_BASE as *mut usize;
 
-// Controls actuation of pull up/down to ALL GPIO pins.
-const GPPUD: *mut usize = (GPIO_BASE + 0x94) as *mut usize;
-
-// Controls actuation of pull up/down for specific GPIO pin.
-const GPPUDCLK0: *mut usize = (GPIO_BASE + 0x98) as *mut usize;
-/*TODO: Move this gpio defs somewhere else.*/
- 
 // The base address for UART.
 const UART0_BASE_OFFSET: usize = 0x00001000 as usize;
  
 // The offsets for reach register for the UART.
-const DR     :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x00usize) as *mut usize ;
-const RSRECR :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x04usize) as *mut usize ;
-const FR     :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x18usize) as *mut usize ;
-const ILPR   :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x20usize) as *mut usize ;
-const IBRD   :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x24usize) as *mut usize ;
-const FBRD   :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x28usize) as *mut usize ;
-const LCRH   :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x2Cusize) as *mut usize ;
-const CR     :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x30usize) as *mut usize ;
-const IFLS   :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x34usize) as *mut usize ;
-const IMSC   :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x38usize) as *mut usize ;
-const RIS    :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x3Cusize) as *mut usize ;
-const MIS    :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x40usize) as *mut usize ;
-const ICR    :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x44usize) as *mut usize ;
-const DMACR  :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x48usize) as *mut usize ;
-const ITCR   :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x80usize) as *mut usize ;
-const ITIP   :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x84usize) as *mut usize ;
-const ITOP   :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x88usize) as *mut usize ;
-const TDR    :*mut usize = (GPIO_BASE + UART0_BASE_OFFSET + 0x8Cusize) as *mut usize ;
+const DR     :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x00usize) as *mut usize ;
+const RSRECR :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x04usize) as *mut usize ;
+const FR     :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x18usize) as *mut usize ;
+const ILPR   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x20usize) as *mut usize ;
+const IBRD   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x24usize) as *mut usize ;
+const FBRD   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x28usize) as *mut usize ;
+const LCRH   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x2Cusize) as *mut usize ;
+const CR     :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x30usize) as *mut usize ;
+const IFLS   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x34usize) as *mut usize ;
+const IMSC   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x38usize) as *mut usize ;
+const RIS    :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x3Cusize) as *mut usize ;
+const MIS    :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x40usize) as *mut usize ;
+const ICR    :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x44usize) as *mut usize ;
+const DMACR  :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x48usize) as *mut usize ;
+const ITCR   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x80usize) as *mut usize ;
+const ITIP   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x84usize) as *mut usize ;
+const ITOP   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x88usize) as *mut usize ;
+const TDR    :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x8Cusize) as *mut usize ;
 
 const DELAY: usize = 150;
 
@@ -62,15 +53,15 @@ pub fn init () {
     mmio::write(CR, 0x0);
 
     //Disable pull up/down for all GPIO pins & wait.
-    mmio::write(GPPUD, 0x00000000);
+    mmio::write(gpio::GPPUD, 0x00000000);
     mmio::delay(DELAY);
 
     // Disable pull up/down for pin 14,15 & delay for 150 cycles.
-    mmio::write(GPPUDCLK0, (1 << 14) | (1 << 15));
+    mmio::write(gpio::GPPUDCLK0, (1 << 14) | (1 << 15));
     mmio::delay(DELAY);
 
     // Write 0 to GPPUDCLK0 to make it take effect.
-    mmio::write(GPPUDCLK0, 0x00000000);
+    mmio::write(gpio::GPPUDCLK0, 0x00000000);
 
     // Clear pending interrupts.
     mmio::write(ICR, 0x7FF);
