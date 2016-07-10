@@ -93,26 +93,34 @@ pub fn init () {
 pub fn putc(byte: &char)
 {
     unsafe {
-    // Wait for UART to become ready to transmit.
-    while ( mmio::read(FR) & (1usize << 5usize) ) > 0 { }
-    mmio::write(DR, *byte as usize);
+        // Wait for UART to become ready to transmit.
+            while (mmio::read(FR) & (1usize << 5usize) ) > 0 {}
+        mmio::write(DR, *byte as usize);
+    }
+}
+
+pub fn putb(byte: &u8) {
+    unsafe {
+        // Wait for UART to become ready to transmit.
+        while ( mmio::read(FR) & (1usize << 5usize) ) > 0 { ;}
+        mmio::write(DR, *byte as usize);
     }
 }
 
 pub fn puts(s: &str)
 {
     unsafe {
-    for c in s.chars() {
-        putc(&c);
-    }
+        for c in s.chars() {
+            putc(&c);
+        }
     }
 }
- 
-pub fn write(buffer: &[char]) {
+
+pub fn write(buffer: &[u8]) {
     unsafe {
-    for c in buffer {
-        putc(c);
-    }
+        for c in buffer {
+            putb(c);
+        }
     }
 }
 
@@ -120,8 +128,8 @@ pub fn getc() -> char
 {
 
     unsafe {
-    // Wait for UART to have recieved something.
-    while ( mmio::read(FR) & (1 << 4) ) > 0{ }
-    mmio::read(DR) as u8 as char
+        // Wait for UART to have recieved something.
+        while ( mmio::read(FR) & (1 << 4) ) > 0{ }
+        mmio::read(DR) as u8 as char
     }
 }
