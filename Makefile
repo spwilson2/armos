@@ -23,8 +23,8 @@ TARGETSPEC := arch/$(ARCH)/target.json
 LDFLAGS := --gc-sections
 
 #TODO: Use cargo for importing other libraries.
-#CARGO=CARGO_TARGET_DIR=build cargo rustc
-#CARGOFLAGS := --target=$(RUST_TARGET) -C lto -C panic=abort
+CARGO:= cargo build --manifest-path
+CARGOFLAGS := --target=$(RUST_TARGET) --release
 
 RUSTFLAGS := --target=$(RUST_TARGET) -A dead_code \
 	-C no-stack-check \
@@ -54,16 +54,18 @@ run: kernel.img boot.sh
 	bash boot.sh
 clean:
 	rm -rf .obj $(CLEAN)
+	cargo clean --manifest-path crates/rlibc/Cargo.toml
 
 kernel.img: $(OBJS) $(OBJDIR)kernel.rlib
 	$(CROSS_LD) $^ $(LDFLAGS) -T $(SRCDIR)$(LINKSCRIPT) -o kernel.elf
 	$(CROSS_OBJCOPY) kernel.elf -O binary $@
 
 $(OBJDIR)kernel.rlib: src/main.rs $(RUSTSRC) Makefile $(OBJDIR)librlibc.rlib
-	$(RUSTC) $(RUSTFLAGS) -C lto -o $@ $< -L crates/rlibc/src/
+	$(RUSTC) $(RUSTFLAGS) -C lto -o $@ $< -L $(OBJDIR)
 
 $(OBJDIR)librlibc.rlib: crates/rlibc/src/lib.rs Makefile
-	$(RUSTC) $(RUSTFLAGS) --crate-type lib -o $@ $< 
+	$(CARGO) crates/rlibc/Cargo.toml $(CARGOFLAGS)
+	mv crates/rlibc/target/$(RUST_TARGET)/release/librlibc.rlib $@
 
 $(OBJDIR)%.o:src/arch/$(ARCH)/%.S Makefile
 	@$(CROSS_AS) $< -c $(ARCH_ASFLAGS) -o $@ 
@@ -71,4 +73,5 @@ $(OBJDIR)%.o:src/arch/$(ARCH)/%.S Makefile
 
 $(shell mkdir -p $(OBJDIR))
 
--include $(shell find $(OBJDIR) -name *.d )
+#-include $(shell find $(OBJDIR) -name *.d )
+-include $(wildcard $(OBJDIR)*.d )

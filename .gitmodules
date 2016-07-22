@@ -1,3 +1,6 @@
 [submodule "raspbootin"]
 	path = raspbootin
 	url = https://github.com/mrvn/raspbootin
+[submodule "rlibc"]
+	path = crates/rlibc
+	url = https://github.com/alexcrichton/rlibc

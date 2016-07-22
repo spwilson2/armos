@@ -53,10 +53,10 @@ const GPIO_GPPUDCLK1  :isize = 39 ;
 pub fn blink()
 {
     #[cfg(debug_assertions)]
-    const delay : usize = 50_000;
+    const DELAY: usize = 50_000;
 
     #[cfg(not(debug_assertions))]
-    const delay : usize = 500_000;
+    const DELAY: usize = 500_000;
 
     unsafe {
     /* Assign the address of the GPIO peripheral (Using ARM Physical Address) */
@@ -69,13 +69,13 @@ pub fn blink()
     /* Never exit as there is no OS to exit to! */
     loop
     {
-        mmio::delay(delay);
+        mmio::delay(DELAY);
 
         /* Set the LED GPIO pin low ( Turn OK LED on for original Pi, and off
            for plus models )*/
         mmio::write(gpio.offset(LED_GPCLR), 1 << LED_GPIO_BIT);
 
-        mmio::delay(delay);
+        mmio::delay(DELAY);
 
         /* Set the LED GPIO pin high ( Turn OK LED off for original Pi, and on
            for plus models )*/
