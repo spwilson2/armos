@@ -9,6 +9,10 @@ macro_rules! print {
             writer.write_fmt(format_args!($($arg)*)).unwrap();
     });
 }
+macro_rules! println {
+    ($fmt:expr) => (print!(concat!($fmt, "\n")));
+    ($fmt:expr, $($arg:tt)*) => (print!(concat!($fmt, "\n"), $($arg)*));
+}
 
 pub struct UartWriter {
 }

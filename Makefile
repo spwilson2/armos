@@ -46,9 +46,12 @@ RUSTSRC := $(shell find $(SRCDIR) -name *.rs)
 CLEAN := $(OBJS) kernel.img kernel.elf
 
 
-.PHONY: clean all run 
+.PHONY: clean all run boot
 
 all: $(OBJDIR) kernel.img
+
+boot: kernel.img
+	bash boot.sh
 
 run: kernel.img boot.sh
 	bash boot.sh
@@ -56,9 +59,11 @@ clean:
 	rm -rf .obj $(CLEAN)
 	cargo clean --manifest-path crates/rlibc/Cargo.toml
 
-kernel.img: $(OBJS) $(OBJDIR)kernel.rlib
+kernel.img: kernel.elf 
+	$(CROSS_OBJCOPY) kernel.elf -g -O binary $@
+
+kernel.elf: $(OBJS) $(OBJDIR)kernel.rlib $(SRCDIR)$(LINKSCRIPT)
 	$(CROSS_LD) $^ $(LDFLAGS) -T $(SRCDIR)$(LINKSCRIPT) -o kernel.elf
-	$(CROSS_OBJCOPY) kernel.elf -O binary $@
 
 $(OBJDIR)kernel.rlib: src/main.rs $(RUSTSRC) Makefile $(OBJDIR)librlibc.rlib
 	$(RUSTC) $(RUSTFLAGS) -C lto -o $@ $< -L $(OBJDIR)

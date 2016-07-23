@@ -12,7 +12,7 @@ cd raspbootin &&
 make &&
 cd .. &&
 
-# Use tmux otherwise the terminal is gonna get fuuuuked
-tmux new 'sudo raspbootin/raspbootcom/raspbootcom /dev/ttyUSB0 kernel.img'
+sudo raspbootin/raspbootcom/raspbootcom /dev/ttyUSB0 kernel.img
+reset
 
 fi

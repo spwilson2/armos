@@ -20,7 +20,7 @@ mod arch;
 #[no_mangle]
 #[cold]
 #[inline(never)]
-pub extern "cdecl" fn rust_main() -> !{
+pub extern "cdecl" fn rust_main(end: usize) -> !{
     //uart::init();
     //let s = "Hello Kernel world!\n";
     //uart::puts(&s);
@@ -29,12 +29,19 @@ pub extern "cdecl" fn rust_main() -> !{
     //let i = 0xffffffffusize;
     //let j= i + 1;
     //print!("Hello again again.\n");
+    print!("End: {:X}", end);
     led::blink();
     loop{}
 }
 
 #[lang = "eh_personality"] extern fn eh_personality() {}
-#[lang = "panic_fmt"] extern fn panic_fmt() -> ! {loop{}}
+
+#[lang = "panic_fmt"] 
+extern fn panic_fmt(fmt: core::fmt::Arguments, file: &str, line: u32) -> ! {
+    println!("\n\nKERNEL PANIC in {} at line {}:", file, line);
+    println!("    {}", fmt);
+    loop{}
+}
 
 // Fix llbv landing pads.
 #[no_mangle]

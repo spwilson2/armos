@@ -1,3 +1,13 @@
+// Actualy a non-spec version of the multiboot header that way I can print
+// frames..
+.section ".multiboot.header"
+.globl __multiboot_header
+
+__multiboot_header:
+.balign 4
+.int __text_start
+.int __text_end
+
 // To keep this in the first portion of the binary.
 .section ".text.boot"
  
@@ -32,6 +42,9 @@ _start:
 	cmp r4, r9
 	blo 1b
  
+	// Store the end of the kernel as an argument to main.
+	ldr r0, =__end 
+
 	// Call kernel_main
 	ldr r3, =rust_main
 	blx r3

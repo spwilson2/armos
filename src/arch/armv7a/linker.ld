@@ -1,5 +1,5 @@
 ENTRY(_start)
- 
+
 SECTIONS
 {
     /* Starts at LOADER_ADDR. */
@@ -9,7 +9,11 @@ SECTIONS
     .text :
     {
         KEEP(*(.text.boot))
-        *(.text)
+        *(.text .text.*)
+        /*(.text .text.*)*/
+    }
+    .ARM.text (NOLOAD) : {
+        *(.ARM.exidx.text.*)
     }
     . = ALIGN(4096); /* align to page size */
     __text_end = .;
@@ -17,7 +21,8 @@ SECTIONS
     __rodata_start = .;
     .rodata :
     {
-        *(.rodata)
+        *(.rodata .rodata.*)
+        KEEP(*(.multiboot.header))
     }
     . = ALIGN(4096); /* align to page size */
     __rodata_end = .;
@@ -25,7 +30,7 @@ SECTIONS
     __data_start = .;
     .data :
     {
-        *(.data)
+        *(.data .data.*)
     }
     . = ALIGN(4096); /* align to page size */
     __data_end = .;
