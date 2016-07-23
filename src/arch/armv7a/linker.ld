@@ -22,7 +22,7 @@ SECTIONS
     .rodata :
     {
         *(.rodata .rodata.*)
-        KEEP(*(.multiboot.header))
+        KEEP(*(.sections.descriptor))
     }
     . = ALIGN(4096); /* align to page size */
     __rodata_end = .;
@@ -44,4 +44,9 @@ SECTIONS
     . = ALIGN(4096); /* align to page size */
     __bss_end = .;
     __end = .;
+
+    .multiboot : {
+        KEEP(*(.strtab))
+        KEEP(*(.symtab))
+    }
 }

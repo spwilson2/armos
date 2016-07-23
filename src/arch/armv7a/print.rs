@@ -14,6 +14,28 @@ macro_rules! println {
     ($fmt:expr, $($arg:tt)*) => (print!(concat!($fmt, "\n"), $($arg)*));
 }
 
+#[cfg(debug)]
+macro_rules! debug_print {
+    ($fmt:expr) => (println!($fmt));
+    ($fmt:expr, $($arg:tt)*) => (println!($fmt, $($arg)*));
+}
+
+#[cfg(debug)]
+macro_rules! debug {
+    ($fmt:expr) => ($fmt);
+}
+
+#[cfg(not(debug))]
+macro_rules! debug {
+    ($fmt:expr) => ($fmt);
+}
+
+#[cfg(not(debug))]
+macro_rules! debug_print {
+    ($_:expr) => {()};
+    ($_:expr, $($__:tt)*) => {()};
+}
+
 pub struct UartWriter {
 }
 

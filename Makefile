@@ -26,18 +26,33 @@ LDFLAGS := --gc-sections
 CARGO:= cargo build --manifest-path
 CARGOFLAGS := --target=$(RUST_TARGET) --release
 
+#RUSTFLAGS := --target=$(RUST_TARGET) -A dead_code \
+#	-Z no-landing-pads -L $(OBJDIR) \
+#	-C no-prepopulate-passes -C panic=abort \
+
+ifdef $(DEBUG)
 RUSTFLAGS := --target=$(RUST_TARGET) -A dead_code \
+	-Z no-landing-pads -L $(OBJDIR) \
+	-C no-prepopulate-passes -C panic=abort \
 	-C no-stack-check \
 	-C debuginfo=0 \
-	-C opt-level=3 -C panic=abort \
+	-C opt-level=3
+else
+RUSTFLAGS := --target=$(RUST_TARGET) -A dead_code \
 	-Z no-landing-pads -L $(OBJDIR) \
-	-C no-prepopulate-passes 
+	-C no-prepopulate-passes -C panic=abort \
+	-C debuginfo=2 \
+	-C opt-level=3 \
+	--cfg debug
+endif
+
 
 #RUSTFLAGS := --target=$(RUST_TARGET) -C lto -O
 #RUSTFLAGS := --target=$(RUST_TARGET) -C lto
 ARCH_ASFLAGS:= -mfpu=neon-vfpv4 -mfloat-abi=hard -march=armv7-a
 
-OBJS := boot.o
+SRCS := boot.S
+OBJS := $(SRCS:%.S=%.o)
 OBJS := $(OBJS:%=$(OBJDIR)%)
 BIN := ../kernel.$(ARCH).bin
 SRCDIR := src/
@@ -45,10 +60,13 @@ RUSTSRC := $(shell find $(SRCDIR) -name *.rs)
 
 CLEAN := $(OBJS) kernel.img kernel.elf
 
-
-.PHONY: clean all run boot
+.PHONY: clean all run boot debug 
 
 all: $(OBJDIR) kernel.img
+debug: all 
+
+debug: DEBUG=true
+
 
 boot: kernel.img
 	bash boot.sh
@@ -60,7 +78,7 @@ clean:
 	cargo clean --manifest-path crates/rlibc/Cargo.toml
 
 kernel.img: kernel.elf 
-	$(CROSS_OBJCOPY) kernel.elf -g -O binary $@
+	$(CROSS_OBJCOPY) kernel.elf -O binary $@
 
 kernel.elf: $(OBJS) $(OBJDIR)kernel.rlib $(SRCDIR)$(LINKSCRIPT)
 	$(CROSS_LD) $^ $(LDFLAGS) -T $(SRCDIR)$(LINKSCRIPT) -o kernel.elf

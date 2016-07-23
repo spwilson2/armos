@@ -1,12 +1,50 @@
-// Actualy a non-spec version of the multiboot header that way I can print
-// frames..
-.section ".multiboot.header"
-.globl __multiboot_header
+// A non-spec version of the multiboot header that way I can print frames..
+.section ".sections.descriptor"
+.globl __sections_header
 
-__multiboot_header:
+// NOTE: All sections must be set up before the header, since it uses SECTIONS 
+// which is incremented every time a SECTION_ENTRY is added.
+.set SECTIONS, 0
+
+// Create a struct of info for each section
+.macro section_entry name
+.set SECTIONS, SECTIONS + 1
+.int __\name\()_start
+.int __\name\()_end
+.int __\name\()_string //Pointer to null terminated ascii string.
+.int __\name\()_strlen //Length of the string (Needed by rust.)
+.endm
+
+// Create a null terminated ascii string for each section
+.macro section_string name
+__\name\()_string:
+.ascii "\name\0"
+.set __\name\()_strlen, .-__\name\()_string
+.endm
+
+// Array of section entry structs.
+.align 4
+sections_list:
+	 SECTION_ENTRY text
+	 SECTION_ENTRY rodata
+	 SECTION_ENTRY data
+	 SECTION_ENTRY bss
+
+// Strings for each section entry.
+SECTION_STRING text
+SECTION_STRING rodata
+SECTION_STRING data
+SECTION_STRING bss
+
+// Keep a magic value so we know the descriptor table header is loaded correctly.
+.set SECTION_MAP_MAGIC, 0xD1CE0000
+
 .balign 4
-.int __text_start
-.int __text_end
+__sections_header:
+	.int SECTION_MAP_MAGIC
+	.int SECTIONS
+	.int sections_list
+
 
 // To keep this in the first portion of the binary.
 .section ".text.boot"
@@ -43,7 +81,7 @@ _start:
 	blo 1b
  
 	// Store the end of the kernel as an argument to main.
-	ldr r0, =__end 
+	ldr r0, =__sections_header
 
 	// Call kernel_main
 	ldr r3, =rust_main

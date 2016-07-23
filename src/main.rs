@@ -1,35 +1,24 @@
 #![crate_name="kernel"]
-//#![crate_type="bin"]
 #![crate_type="staticlib"]
-//#![crate_type="rlib"]
-//#![feature(lang_items, asm, const_fn, naked_functions)]
 #![feature(lang_items, asm, naked_functions, unique, const_fn, core_intrinsics)]
-//#![feature(lang_items, asm)]
 #![no_std]
 extern crate rlibc;
 
 use arch::drivers::uart;
 use arch::drivers::led;
+use arch::sections::SectionMap;
 
 #[macro_use]
 mod arch;
-//mod rlibc;
 
 // Allow this to be called from asm boot and not be optimized out.
 #[link(name="rust_main", kind = "static")]
 #[no_mangle]
 #[cold]
 #[inline(never)]
-pub extern "cdecl" fn rust_main(end: usize) -> !{
-    //uart::init();
-    //let s = "Hello Kernel world!\n";
-    //uart::puts(&s);
-    //let s = b"Hello again!";
-    //uart::write(s);
-    //let i = 0xffffffffusize;
-    //let j= i + 1;
-    //print!("Hello again again.\n");
-    print!("End: {:X}", end);
+pub extern "cdecl" fn rust_main(section_map: *mut SectionMap) -> !{
+    uart::init();
+    unsafe{ (*section_map).verify() };
     led::blink();
     loop{}
 }
