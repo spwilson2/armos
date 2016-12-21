@@ -3,7 +3,8 @@ ENTRY(_start)
 SECTIONS
 {
     /* Starts at LOADER_ADDR. */
-    . = 0x8000;
+    /*. = 0x8000;*/
+    /*. = 0x10000; -kernel start in qemu*/
     __start = .;
     __text_start = .;
     .text :

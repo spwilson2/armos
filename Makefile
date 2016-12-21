@@ -83,12 +83,12 @@ kernel.img: kernel.elf
 kernel.elf: $(OBJS) $(OBJDIR)kernel.rlib $(SRCDIR)$(LINKSCRIPT)
 	$(CROSS_LD) $^ $(LDFLAGS) -T $(SRCDIR)$(LINKSCRIPT) -o kernel.elf
 
-$(OBJDIR)kernel.rlib: src/main.rs $(RUSTSRC) Makefile $(OBJDIR)librlibc.rlib
+$(OBJDIR)kernel.rlib: src/main.rs $(RUSTSRC) Makefile #$(OBJDIR)librlibc.rlib
 	$(RUSTC) $(RUSTFLAGS) -C lto -o $@ $< -L $(OBJDIR)
 
-$(OBJDIR)librlibc.rlib: crates/rlibc/src/lib.rs Makefile
-	$(CARGO) crates/rlibc/Cargo.toml $(CARGOFLAGS)
-	mv crates/rlibc/target/$(RUST_TARGET)/release/librlibc.rlib $@
+#$(OBJDIR)librlibc.rlib: crates/rlibc/src/lib.rs Makefile
+#	$(CARGO) crates/rlibc/Cargo.toml $(CARGOFLAGS)
+#	mv crates/rlibc/target/$(RUST_TARGET)/release/librlibc.rlib $@
 
 $(OBJDIR)%.o:src/arch/$(ARCH)/%.S Makefile
 	@$(CROSS_AS) $< -c $(ARCH_ASFLAGS) -o $@ 
