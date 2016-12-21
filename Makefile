@@ -23,7 +23,7 @@ TARGETSPEC := arch/$(ARCH)/target.json
 LDFLAGS := --gc-sections
 
 #TODO: Use cargo for importing other libraries.
-CARGO:= cargo build --manifest-path
+CARGO:= xargo build --manifest-path
 CARGOFLAGS := --target=$(RUST_TARGET) --release
 
 #RUSTFLAGS := --target=$(RUST_TARGET) -A dead_code \
@@ -33,15 +33,15 @@ CARGOFLAGS := --target=$(RUST_TARGET) --release
 ifdef $(DEBUG)
 RUSTFLAGS := --target=$(RUST_TARGET) -A dead_code \
 	-Z no-landing-pads -L $(OBJDIR) \
-	-C no-prepopulate-passes -C panic=abort \
+	-C panic=abort \
 	-C no-stack-check \
-	-C debuginfo=0 \
-	-C opt-level=3
+	-C debuginfo=2 \
+	-C opt-level=0
 else
 RUSTFLAGS := --target=$(RUST_TARGET) -A dead_code \
 	-Z no-landing-pads -L $(OBJDIR) \
-	-C no-prepopulate-passes -C panic=abort \
-	-C debuginfo=2 \
+	-C panic=abort \
+	-C debuginfo=0 \
 	-C opt-level=3 \
 	--cfg debug
 endif
@@ -80,15 +80,15 @@ clean:
 kernel.img: kernel.elf 
 	$(CROSS_OBJCOPY) kernel.elf -O binary $@
 
-kernel.elf: $(OBJS) $(OBJDIR)kernel.rlib $(SRCDIR)$(LINKSCRIPT)
+kernel.elf: $(OBJS) $(OBJDIR)kernel.lib $(SRCDIR)$(LINKSCRIPT)
 	$(CROSS_LD) $^ $(LDFLAGS) -T $(SRCDIR)$(LINKSCRIPT) -o kernel.elf
 
-$(OBJDIR)kernel.rlib: src/main.rs $(RUSTSRC) Makefile #$(OBJDIR)librlibc.rlib
-	$(RUSTC) $(RUSTFLAGS) -C lto -o $@ $< -L $(OBJDIR)
+$(OBJDIR)kernel.lib: src/main.rs $(RUSTSRC) Makefile $(OBJDIR)librlibc.rlib
+	$(RUSTC) $(RUSTFLAGS) -o $@ $< -L $(OBJDIR)
 
-#$(OBJDIR)librlibc.rlib: crates/rlibc/src/lib.rs Makefile
-#	$(CARGO) crates/rlibc/Cargo.toml $(CARGOFLAGS)
-#	mv crates/rlibc/target/$(RUST_TARGET)/release/librlibc.rlib $@
+$(OBJDIR)librlibc.rlib: crates/rlibc/src/lib.rs Makefile
+	$(CARGO) crates/rlibc/Cargo.toml $(CARGOFLAGS)
+	mv crates/rlibc/target/$(RUST_TARGET)/release/librlibc.rlib $@
 
 $(OBJDIR)%.o:src/arch/$(ARCH)/%.S Makefile
 	@$(CROSS_AS) $< -c $(ARCH_ASFLAGS) -o $@ 
