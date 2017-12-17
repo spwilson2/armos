@@ -1,100 +1,17 @@
-ARCH ?= armv7a
+LD:=arm-none-eabi-ld
+CC:=arm-none-eabi-gcc
 
-ifeq ($(ARCH),armv7a)
-    TRIPLE ?= arm-none-eabi-
-	RUST_TARGET ?=arm-unknown-linux-gnueabi
-	#RUST_TARGET ?=arch.json
-else
-    $(error Unknown architecture $(ARCH))
-endif
+all: target/arm-none-eabi/debug/kernel
 
-RUSTC ?= rustc
+target/arm-none-eabi/debug/libkernel.a: src/* src/*/* src/*/*/*
+	CC=$(CC) xargo build --target arm-none-eabi --all -v
 
-CROSS_LD := $(TRIPLE)ld
-CROSS_AS := $(TRIPLE)as
-CROSS_OBJDUMP := $(TRIPLE)objdump
-CROSS_OBJCOPY := $(TRIPLE)objcopy
-
-OBJDIR := .obj/$(ARCH)/
-
-LINKSCRIPT := arch/$(ARCH)/linker.ld
-TARGETSPEC := arch/$(ARCH)/target.json
-
-LDFLAGS := --gc-sections
-
-#TODO: Use cargo for importing other libraries.
-CARGO:= xargo build --manifest-path
-CARGOFLAGS := --target=$(RUST_TARGET) --release
-
-#RUSTFLAGS := --target=$(RUST_TARGET) -A dead_code \
-#	-Z no-landing-pads -L $(OBJDIR) \
-#	-C no-prepopulate-passes -C panic=abort \
-
-ifdef $(DEBUG)
-RUSTFLAGS := --target=$(RUST_TARGET) -A dead_code \
-	-Z no-landing-pads -L $(OBJDIR) \
-	-C panic=abort \
-	-C no-stack-check \
-	-C debuginfo=2 \
-	-C opt-level=0
-else
-RUSTFLAGS := --target=$(RUST_TARGET) -A dead_code \
-	-Z no-landing-pads -L $(OBJDIR) \
-	-C panic=abort \
-	-C debuginfo=0 \
-	-C opt-level=3 \
-	--cfg debug
-endif
+target/arm-none-eabi/debug/kernel: linkers/linker.ld target/arm-none-eabi/debug/libkernel.a
+	#$(CC) --gc-sections -z max-page-size=0x1000 -T $< -o $@ target/arm-none-eabi/debug/libkernel.a asm/start.s
+	$(CC) -Wl,--gc-sections -nostdlib -nostartfiles -z max-page-size=0x1000 -T $< -o $@  asm/start.s target/arm-none-eabi/debug/libkernel.a 
+	arm-none-eabi-objcopy --strip-debug $@
+	arm-none-eabi-objcopy --only-keep-debug $@ $@.sym
 
 
-#RUSTFLAGS := --target=$(RUST_TARGET) -C lto -O
-#RUSTFLAGS := --target=$(RUST_TARGET) -C lto
-ARCH_ASFLAGS:= -mfpu=neon-vfpv4 -mfloat-abi=hard -march=armv7-a
-
-SRCS := boot.S
-OBJS := $(SRCS:%.S=%.o)
-OBJS := $(OBJS:%=$(OBJDIR)%)
-BIN := ../kernel.$(ARCH).bin
-SRCDIR := src/
-RUSTSRC := $(shell find $(SRCDIR) -name *.rs)
-
-CLEAN := $(OBJS) kernel.img kernel.elf
-
-.PHONY: clean all run boot debug 
-
-all: $(OBJDIR) kernel.img
-debug: all 
-
-debug: DEBUG=true
-
-
-boot: kernel.img
-	bash boot.sh
-
-run: kernel.img boot.sh
-	bash boot.sh
-clean:
-	rm -rf .obj $(CLEAN)
-	cargo clean --manifest-path crates/rlibc/Cargo.toml
-
-kernel.img: kernel.elf 
-	$(CROSS_OBJCOPY) kernel.elf -O binary $@
-
-kernel.elf: $(OBJS) $(OBJDIR)kernel.lib $(SRCDIR)$(LINKSCRIPT)
-	$(CROSS_LD) $^ $(LDFLAGS) -T $(SRCDIR)$(LINKSCRIPT) -o kernel.elf
-
-$(OBJDIR)kernel.lib: src/main.rs $(RUSTSRC) Makefile $(OBJDIR)librlibc.rlib
-	$(RUSTC) $(RUSTFLAGS) -o $@ $< -L $(OBJDIR)
-
-$(OBJDIR)librlibc.rlib: crates/rlibc/src/lib.rs Makefile
-	$(CARGO) crates/rlibc/Cargo.toml $(CARGOFLAGS)
-	mv crates/rlibc/target/$(RUST_TARGET)/release/librlibc.rlib $@
-
-$(OBJDIR)%.o:src/arch/$(ARCH)/%.S Makefile
-	@$(CROSS_AS) $< -c $(ARCH_ASFLAGS) -o $@ 
-
-
-$(shell mkdir -p $(OBJDIR))
-
-#-include $(shell find $(OBJDIR) -name *.d )
--include $(wildcard $(OBJDIR)*.d )
+clean: 
+	rm -rf target

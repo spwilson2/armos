@@ -1,0 +1,15 @@
+[dependencies.core]
+stage = 0
+
+#[dependencies.compiler_builtins]
+#features = ["mem"]
+#stage = 1
+
+#[dependencies.compiler_builtins]
+#features = ["mem"]
+#stage = 1
+
+#[target.arm-none-eabi.dependencies.rlibc]
+#git = "https://github.com/alexcrichton/rlibc"
+#rlibc = "1.0.0"
+#stage = 2

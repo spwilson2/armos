@@ -30,12 +30,6 @@ macro_rules! debug {
     ($fmt:expr) => ($fmt);
 }
 
-#[cfg(not(debug))]
-macro_rules! debug_print {
-    ($_:expr) => {()};
-    ($_:expr, $($__:tt)*) => {()};
-}
-
 pub struct UartWriter {
 }
 
