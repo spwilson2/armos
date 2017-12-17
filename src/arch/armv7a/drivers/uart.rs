@@ -19,27 +19,28 @@ use arch::io::gpio;
 // The offsets for reach register.
 
 // The base address for UART.
-const UART0_BASE_OFFSET: usize = 0x00001000 as usize;
+//const UART0_BASE_OFFSET: usize = 0x00001000 as usize;
+const UART0_BASE_OFFSET: usize = 0x10009000 as usize;
  
 // The offsets for reach register for the UART.
-const DR     :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x00usize) as *mut usize ;
-const RSRECR :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x04usize) as *mut usize ;
-const FR     :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x18usize) as *mut usize ;
-const ILPR   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x20usize) as *mut usize ;
-const IBRD   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x24usize) as *mut usize ;
-const FBRD   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x28usize) as *mut usize ;
-const LCRH   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x2Cusize) as *mut usize ;
-const CR     :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x30usize) as *mut usize ;
-const IFLS   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x34usize) as *mut usize ;
-const IMSC   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x38usize) as *mut usize ;
-const RIS    :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x3Cusize) as *mut usize ;
-const MIS    :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x40usize) as *mut usize ;
-const ICR    :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x44usize) as *mut usize ;
-const DMACR  :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x48usize) as *mut usize ;
-const ITCR   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x80usize) as *mut usize ;
-const ITIP   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x84usize) as *mut usize ;
-const ITOP   :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x88usize) as *mut usize ;
-const TDR    :*mut usize = (gpio::GPIO_BASE + UART0_BASE_OFFSET + 0x8Cusize) as *mut usize ;
+const DR     :*mut usize = (UART0_BASE_OFFSET + 0x00usize) as *mut usize ;
+const RSRECR :*mut usize = (UART0_BASE_OFFSET + 0x04usize) as *mut usize ;
+const FR     :*mut usize = (UART0_BASE_OFFSET + 0x18usize) as *mut usize ;
+const ILPR   :*mut usize = (UART0_BASE_OFFSET + 0x20usize) as *mut usize ;
+const IBRD   :*mut usize = (UART0_BASE_OFFSET + 0x24usize) as *mut usize ;
+const FBRD   :*mut usize = (UART0_BASE_OFFSET + 0x28usize) as *mut usize ;
+const LCRH   :*mut usize = (UART0_BASE_OFFSET + 0x2Cusize) as *mut usize ;
+const CR     :*mut usize = (UART0_BASE_OFFSET + 0x30usize) as *mut usize ;
+const IFLS   :*mut usize = (UART0_BASE_OFFSET + 0x34usize) as *mut usize ;
+const IMSC   :*mut usize = (UART0_BASE_OFFSET + 0x38usize) as *mut usize ;
+const RIS    :*mut usize = (UART0_BASE_OFFSET + 0x3Cusize) as *mut usize ;
+const MIS    :*mut usize = (UART0_BASE_OFFSET + 0x40usize) as *mut usize ;
+const ICR    :*mut usize = (UART0_BASE_OFFSET + 0x44usize) as *mut usize ;
+const DMACR  :*mut usize = (UART0_BASE_OFFSET + 0x48usize) as *mut usize ;
+const ITCR   :*mut usize = (UART0_BASE_OFFSET + 0x80usize) as *mut usize ;
+const ITIP   :*mut usize = (UART0_BASE_OFFSET + 0x84usize) as *mut usize ;
+const ITOP   :*mut usize = (UART0_BASE_OFFSET + 0x88usize) as *mut usize ;
+const TDR    :*mut usize = (UART0_BASE_OFFSET + 0x8Cusize) as *mut usize ;
 
 const DELAY: usize = 150;
 

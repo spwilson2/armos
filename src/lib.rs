@@ -16,8 +16,9 @@ mod arch;
 #[no_mangle]
 pub fn main() {
     uart::init();
+    println!("Hello world!\r\n");
     //unsafe{ (*section_map).verify() };
-    led::blink();
+    //led::blink();
     loop{}
     //return 1;
 }
